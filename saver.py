@@ -76,7 +76,30 @@ class Saver(threading.Thread):
             self.preview = preview
             self._last_idle = 0.0
             self.reason = ""
+            threading.Thread(target=self._bring_forward, args=(self.proc,), daemon=True).start()
             return True
+
+    def _bring_forward(self, proc):
+        """Windows does not let a program in the background put its window in front of the
+        one you were using, so the kiosk window would open behind it. Once it appears, pin it
+        on top of everything and hand it the keyboard."""
+        if not _WIN:
+            return
+        hwnd = 0
+        for _ in range(60):                      # the window takes a moment to appear
+            time.sleep(0.15)
+            if proc.poll() is not None:
+                return
+            hwnd = _window_of(proc.pid)
+            if hwnd:
+                break
+        if not hwnd:
+            return
+        time.sleep(0.4)                          # let it go full screen first
+        _force_front(hwnd)
+        time.sleep(1.0)                          # Edge sometimes re-orders itself once loaded
+        if self.proc is proc and proc.poll() is None:
+            _force_front(hwnd)
 
     def hide(self):
         with self._lock:
@@ -125,6 +148,52 @@ class Saver(threading.Thread):
         self.reason = why
         if not why:
             self.show()
+
+
+# --- windows --------------------------------------------------------------------
+
+def _window_of(pid):
+    """The biggest visible top-level window belonging to process `pid`, or 0."""
+    from ctypes import wintypes
+    u32 = ctypes.windll.user32
+    found = []
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    def each(hwnd, _):
+        owner = wintypes.DWORD()
+        u32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
+        if owner.value == pid and u32.IsWindowVisible(hwnd):
+            r = wintypes.RECT()
+            u32.GetWindowRect(hwnd, ctypes.byref(r))
+            found.append(((r.right - r.left) * (r.bottom - r.top), hwnd))
+        return True
+
+    u32.EnumWindows(each, 0)
+    return max(found)[1] if found else 0
+
+
+def _force_front(hwnd):
+    """Topmost, shown, and (if Windows allows it) the foreground window."""
+    from ctypes import wintypes
+    u32 = ctypes.windll.user32
+    k32 = ctypes.windll.kernel32
+    u32.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND, ctypes.c_int, ctypes.c_int,
+                                 ctypes.c_int, ctypes.c_int, ctypes.c_uint]
+    HWND_TOPMOST = wintypes.HWND(-1)
+    u32.ShowWindow(hwnd, 5)                                      # SW_SHOW
+    u32.SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0040)   # NOSIZE|NOMOVE|SHOW
+    fg = u32.GetForegroundWindow()
+    fg_thread = u32.GetWindowThreadProcessId(fg, None) if fg else 0
+    me = k32.GetCurrentThreadId()
+    attached = bool(fg_thread and fg_thread != me and u32.AttachThreadInput(me, fg_thread, True))
+    try:
+        u32.BringWindowToTop(hwnd)
+        u32.SetForegroundWindow(hwnd)
+        u32.SetActiveWindow(hwnd)
+    finally:
+        if attached:
+            u32.AttachThreadInput(me, fg_thread, False)
+    return u32.GetForegroundWindow() == hwnd
 
 
 # --- hotkey ---------------------------------------------------------------------
