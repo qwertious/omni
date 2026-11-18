@@ -140,7 +140,7 @@
 	});
 
 	const lines = $derived.by(() => {
-		const all = shown.split('\n');
+		const all = shown.split('\n').filter((l) => !/^\s*={2,}\s*(END|FILE|DELETE)\b/.test(l));
 		return all.slice(-30);
 	});
 	const lang = $derived.by(() => {
@@ -224,8 +224,8 @@
 		<footer class="cols2">
 			<div class="box">
 				<div class="label">┤ machine ├</div>
-				<div class="meter"><span class="dim">video </span>{bar(vramFrac, 24)} <span class="dim">{((st.vram_total - st.vram_free) / 2 ** 30 || 0).toFixed(1)}/{(st.vram_total / 2 ** 30 || 0).toFixed(0)} GB</span></div>
-				<div class="meter"><span class="dim">system</span>{bar(ramFrac, 24)} <span class="dim">{((st.ram_total - st.ram_free) / 2 ** 30 || 0).toFixed(1)}/{(st.ram_total / 2 ** 30 || 0).toFixed(0)} GB</span></div>
+				<div class="meter"><span class="dim">video  </span>{bar(vramFrac, 24)} <span class="dim">{((st.vram_total - st.vram_free) / 2 ** 30 || 0).toFixed(1)}/{(st.vram_total / 2 ** 30 || 0).toFixed(0)} GB</span></div>
+				<div class="meter"><span class="dim">system </span>{bar(ramFrac, 24)} <span class="dim">{((st.ram_total - st.ram_free) / 2 ** 30 || 0).toFixed(1)}/{(st.ram_total / 2 ** 30 || 0).toFixed(0)} GB</span></div>
 				<div class="faint">{app.counts.live} projects · {st.queued || 0} requests waiting</div>
 			</div>
 			<div class="box">
