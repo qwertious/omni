@@ -1,0 +1,16 @@
+{
+  "name": "omni-web",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "highlight.js": "^11.12.0",
+    "svelte": "^5.57.3",
+    "vite": "^8.3.8"
+  }
+}

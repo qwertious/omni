@@ -1,0 +1,348 @@
+/* Omni. Follows the XIO palette: black, white, and the grey in between. No gradients.
+   Two signal colours only: red for something broken, cyan for something alive. */
+
+:root {
+	--bg: #000000;
+	--fg: #f2f2f2;
+	--dim: #8a8a8a;
+	--faint: #4a4a4a;
+	--rule: #1e1e1e;
+	--rule-hi: #333333;
+	--panel: #070707;
+	--panel-hi: #0e0e0e;
+	--bad: #ff2d2d;
+	--live: #29e6ff;
+	--mono: 'SFMono-Regular', 'SF Mono', 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', 'Cascadia Mono',
+		Consolas, 'Liberation Mono', Menlo, monospace;
+	color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+	background: var(--bg);
+}
+
+body {
+	color: var(--fg);
+	font-family: var(--mono);
+	font-size: 13.5px;
+	line-height: 1.65;
+	letter-spacing: 0.01em;
+	-webkit-font-smoothing: antialiased;
+	overflow: hidden;
+}
+
+#app {
+	height: 100%;
+}
+
+::selection {
+	background: var(--fg);
+	color: var(--bg);
+}
+
+a {
+	color: var(--fg);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+p {
+	margin: 0 0 0.8rem;
+}
+
+h1,
+h2,
+h3 {
+	margin: 0;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+	color: var(--fg);
+	background: var(--bg);
+	border: 1px solid var(--rule-hi);
+	border-radius: 0;
+	padding: 0.35rem 0.7rem;
+}
+
+textarea,
+input[type='text'],
+input[type='number'],
+select {
+	width: 100%;
+}
+
+textarea {
+	resize: vertical;
+	line-height: 1.6;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+	outline: 1px solid var(--fg);
+	outline-offset: -1px;
+}
+
+button {
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+button:hover:not(:disabled) {
+	border-color: var(--fg);
+}
+
+button:disabled {
+	color: var(--faint);
+	cursor: default;
+}
+
+button.solid {
+	background: var(--fg);
+	color: var(--bg);
+	border-color: var(--fg);
+	font-weight: 600;
+}
+
+button.solid:disabled {
+	background: var(--faint);
+	border-color: var(--faint);
+	color: var(--bg);
+}
+
+button.quiet {
+	border-color: transparent;
+	color: var(--dim);
+	padding: 0.2rem 0.4rem;
+}
+
+button.quiet:hover:not(:disabled) {
+	color: var(--fg);
+	border-color: var(--rule-hi);
+}
+
+button.danger:hover:not(:disabled) {
+	border-color: var(--bad);
+	color: var(--bad);
+}
+
+.label {
+	font-size: 10.5px;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--faint);
+}
+
+.dim {
+	color: var(--dim);
+}
+
+.faint {
+	color: var(--faint);
+}
+
+.bad {
+	color: var(--bad);
+}
+
+.live {
+	color: var(--live);
+}
+
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	border: 1px solid var(--rule-hi);
+	padding: 0 0.5rem;
+	font-size: 11px;
+	line-height: 1.7;
+	color: var(--dim);
+	white-space: nowrap;
+}
+
+.chip.on {
+	border-color: var(--fg);
+	color: var(--fg);
+}
+
+.chip.bad {
+	border-color: var(--bad);
+	color: var(--bad);
+}
+
+.chip.live {
+	border-color: var(--live);
+	color: var(--live);
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.wrap {
+	flex-wrap: wrap;
+}
+
+.grow {
+	flex: 1;
+	min-width: 0;
+}
+
+.rule {
+	border: 0;
+	border-top: 1px solid var(--rule);
+	margin: 0;
+}
+
+.panel {
+	border: 1px solid var(--rule);
+	background: var(--panel);
+}
+
+.dot {
+	width: 7px;
+	height: 7px;
+	background: var(--faint);
+	display: inline-block;
+	flex: none;
+}
+
+.dot.live {
+	background: var(--live);
+	animation: blink 1.2s steps(2, end) infinite;
+}
+
+.dot.bad {
+	background: var(--bad);
+}
+
+.dot.ok {
+	background: var(--fg);
+}
+
+@keyframes blink {
+	50% {
+		opacity: 0.25;
+	}
+}
+
+pre,
+code {
+	font-family: var(--mono);
+}
+
+pre {
+	margin: 0;
+	white-space: pre;
+	overflow-x: auto;
+}
+
+.scroll {
+	overflow-y: auto;
+	min-height: 0;
+	scrollbar-width: thin;
+	scrollbar-color: var(--rule-hi) transparent;
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--rule-hi);
+}
+
+/* Segmented control */
+.seg {
+	display: inline-flex;
+	border: 1px solid var(--rule-hi);
+}
+
+.seg button {
+	border: 0;
+	border-right: 1px solid var(--rule-hi);
+	color: var(--dim);
+	padding: 0.25rem 0.75rem;
+}
+
+.seg button:last-child {
+	border-right: 0;
+}
+
+.seg button.on {
+	background: var(--fg);
+	color: var(--bg);
+}
+
+/* Code highlighting, kept in greys */
+.hljs-comment,
+.hljs-quote {
+	color: #5a5a5a;
+	font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+	color: #ffffff;
+	font-weight: 600;
+}
+
+.hljs-string,
+.hljs-attr,
+.hljs-regexp,
+.hljs-template-string {
+	color: #a9a9a9;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-symbol {
+	color: #d6d6d6;
+}
+
+.hljs-title,
+.hljs-function,
+.hljs-section,
+.hljs-selector-class,
+.hljs-selector-id {
+	color: #ffffff;
+}
+
+.hljs-attribute,
+.hljs-variable,
+.hljs-params {
+	color: #cfcfcf;
+}
+
+@media (max-width: 900px) {
+	body {
+		font-size: 13px;
+	}
+}
